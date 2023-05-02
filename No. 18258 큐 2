@@ -1,0 +1,76 @@
+#define _CRT_SECURE_NO_WARNINGS
+#define Q_SIZE 2000000
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+/*
+접근법
+자료구조 Queue의 대한 내용이다.
+시간적 소요가 있었고 방의 크기가 고정으로 잡을 수 있었기 때문에
+순차 큐 방식을 사용하였다.
+rear는 큐의 배열의 끝을 의미하고
+front는 큐의 배열의 시작을 의미한다.
+삽입(enQueue) 시에는 원소의 삽입이 일어나므로 rear를 증가시키고
+삭제(deQueue) 시에는 원소의 삭제가 일어나므로 front를 증가시켜 구분한다.
+front와 rear가 같은 값을 가지고 있다는 의미는 같은 인덱스에 위치해 있다는 뜻이기에
+삽입이 수행 된 만큼 삭제도 일어났다는 의미, 즉 배열에 원소가 없다는 의미가 된다.
+(물론 순차 큐의 경우에는 인덱스를 사용하기 때문에 배열의 방은 계속 사용하고 있어
+방이 비워졌다고 하여도, rear와 front는 증가하였기 때문에 앞의 방은 사용하지 못한다.)
+- 그래서 나온 개념이 원형 큐, 연결 큐이다.
+*/
+typedef struct{
+	int queue[Q_SIZE]; 
+	// 명령어가 모두 push일 경우를 생각하여 사이즈를 잡는다.
+	int front, rear;          
+}Queue;							
+
+Queue* createQueue(void) {
+	Queue* Q = (Queue*)malloc(sizeof(Queue));
+	Q->front = -1;
+	Q->rear = -1;
+	return Q;
+}
+int isQueueEmpty(Queue* Q) {
+	if (Q->front == Q->rear) return 1;
+	else return 0;
+}
+void enQueue(Queue* Q, int item) {
+	Q->rear++;
+	Q->queue[(Q->rear)] = item; 
+}
+
+void sizeQ(Queue* Q) { printf("%d\n", Q->rear - Q->front); }
+
+int deQueue(Queue* Q) { 
+	if (!isQueueEmpty(Q))return Q->queue[++(Q->front)];
+	else return -1;
+}
+int peekQ(Queue* Q) { // front
+	if (!isQueueEmpty(Q)) return Q->queue[Q->front + 1];
+	else return -1;
+}
+
+int backQ(Queue* Q) {
+	if (!isQueueEmpty(Q)) return Q->queue[Q->rear];
+	else return -1;
+}
+
+int main() {
+	Queue* Q = createQueue();
+	int testCase; scanf("%d", &testCase);
+	for (int i = 0; i < testCase; i++) {
+		char offer[6]; scanf("%s", &offer);
+		if (strcmp(offer, "push") == 0) {
+			int item;
+			scanf("%d", &item);
+			enQueue(Q, item);
+		}
+		else if (strcmp(offer, "pop") == 0) printf("%d\n", deQueue(Q));
+		else if (strcmp(offer, "empty") == 0) printf("%d\n", isQueueEmpty(Q));
+		else if (strcmp(offer, "size") == 0)  sizeQ(Q);
+		else if (strcmp(offer, "front") == 0) printf("%d\n", peekQ(Q));
+		else if (strcmp(offer, "back") == 0) printf("%d\n", backQ(Q));
+	}
+
+	return 0;
+}
