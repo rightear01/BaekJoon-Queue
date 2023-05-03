@@ -1,0 +1,56 @@
+#define _CRT_SECURE_NO_WARNINGS
+#define Q_SIZE 1000000
+#include <stdio.h>
+#include <stdlib.h>
+/*
+접근법
+enQueue 연산의 경우에 배열의 인덱스가 증가하고 있기 때문에
+주어진 n의 크기 보다 2배의 사이즈를 가져야 한다.
+이후에는 문제의 조건에 따라서 처음에는 deQueue
+그 다음에는 enQueue하여 뒤에 front에 해당하는 값을 저장한다.
+그리고 enQueue()의 시점이 끝났다면 다시 deQueue() 최전방의 값을 제거한다.
+(sizeQ()가 1일때 까지 진행하면 된다.)
+*/
+typedef struct {
+	int queue[Q_SIZE];
+	int front, rear;
+}Queue;
+
+Queue* createQueue(void) {
+	Queue* Q = (Queue*)malloc(sizeof(Queue));
+	Q->front = -1;
+	Q->rear = -1;
+	return Q;
+}
+int isQueueEmpty(Queue* Q) {
+	if (Q->front == Q->rear) return 1;
+	else return 0;
+}
+void enQueue(Queue* Q, int item) {
+	if (Q->rear == Q_SIZE - 1) { return; }
+	Q->queue[++(Q->rear)] = item;
+}
+void deQueue(Queue* Q) {
+	if (!isQueueEmpty(Q)) ++(Q->front);
+}
+int peekQ(Queue* Q) { // front
+	if (!isQueueEmpty(Q)) return Q->queue[Q->front + 1];
+	else return -1;
+}
+int sizeQ(Queue* Q) { return Q->rear - Q->front; }
+
+int main() {
+	Queue* Q = createQueue();
+	int testCase; scanf("%d", &testCase);
+
+	for (int i = 1; i <= testCase; i++) enQueue(Q, i);
+
+	while (sizeQ(Q) != 1) {
+		deQueue(Q);
+		enQueue(Q, peekQ(Q));
+		deQueue(Q);
+	}
+
+	printf("%d", peekQ(Q)); free(Q);
+	return 0;
+}
