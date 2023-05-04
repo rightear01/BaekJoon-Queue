@@ -1,0 +1,62 @@
+#define _CRT_SECURE_NO_WARNINGS
+#define SIZE 1001
+#include <stdio.h>
+#include <stdlib.h>
+
+/*
+접근법
+원형큐를 사용하여 문제 해결하기
+해당 문제는 오름차순으로 N번까지 저장되어 있는 큐에서
+K 번째의 값을 찾기 전에는 앞전의 원소는 뒤로 보내고 K 번째를 제거
+하는 방식으로 진행된다.
+
+따라서 원형큐를 구현하여 k번째 이전의 값은 원형큐의 끝단으로 이동시키고
+해당하는 값은 지우는 방식을 택하였다.
+*/
+
+typedef struct {
+	int queue[SIZE];
+	int front, rear;
+}Queue;
+
+void enQueue(Queue* q, int num, int N);
+void createQueue(Queue* q, int N) {
+	q->front = 0; q->rear = 0;
+	for (int i = 0; i < N; i++) { enQueue(q, i + 1, N); }
+}
+int isEmpty(Queue* q) { return (q->front == q->rear); }
+void enQueue(Queue* q, int e, int N) {
+	q->rear = (q->rear + 1) % (N + 1);
+	q->queue[q->rear] = e;
+}
+int deQueue(Queue* q, int N) {
+	if (isEmpty(q)) return -1;
+	q->front = (q->front + 1) % (N + 1);
+	return q->queue[q->front];
+}
+int sizeQueue(Queue* q, int N) {
+	if ((q->front + 1) % (N + 1) == q->rear) return 1;
+	else return 0;
+}
+
+int main() {
+	int N, K, result;
+	scanf("%d %d", &N, &K);
+	Queue Q;
+	createQueue(&Q, N);
+
+	printf("<");
+	for (int i = 0; i < N; i++) {
+		for (int j = 0; j < K - 1; j++) {
+			// 제거해야하는 k값 전까지 순차적으로 뒤에 붙인다.
+			result = deQueue(&Q, N);
+			enQueue(&Q, result, N);
+		}
+		if (sizeQueue(&Q, N) == 1) break;
+		// 원소의 개수가 하나 밖에 없다면, 이후에 콤마가 필요없기 때문에 중단.
+		result = deQueue(&Q, N);
+		printf("%d, ", result);
+	}
+	printf("%d>", deQueue(&Q, N));
+	return 0;
+}
