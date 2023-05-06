@@ -1,0 +1,124 @@
+#define _CRT_SECURE_NO_WARNINGS
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+/*
+이중 연결리스트를 이용하여 구현하였으며, 
+size 값은 데이터의 입출력의 횟수를 카운트 함으로써 구현함.
+*/
+
+int ctr = 0;
+typedef struct DequeNode{
+	int data;
+	struct DequeNode* Llink, * Rlink;
+}DequeNode;
+
+typedef struct {
+	DequeNode* front, * rear;
+}DequeType;
+
+DequeType* createDeque() {
+	DequeType* DQ = (DequeType*)malloc(sizeof(DequeType));
+	DQ->front = DQ->rear = NULL;
+	return DQ;
+}
+
+int empty(DequeType* DQ) {
+	if (DQ->front == NULL) return 1;
+	else return 0;
+}
+
+void push_front(DequeType* DQ, int item) {
+	DequeNode* newNode = (DequeNode*)malloc(sizeof(DequeNode));
+	newNode->data = item; ++ctr;
+	if (empty(DQ)) {
+		newNode->Llink = newNode->Rlink = NULL;
+		DQ->front = DQ->rear = newNode;
+	}
+	else {
+		newNode->Llink = NULL;
+		newNode->Rlink = DQ->front;
+		DQ->front->Llink = newNode;
+		DQ->front = newNode;
+	}
+}
+
+void push_back(DequeType* DQ, int item) {
+	DequeNode* newNode = (DequeNode*)malloc(sizeof(DequeNode));
+	newNode->data = item; ++ctr;
+	if (empty(DQ)) {
+		newNode->Llink = newNode->Rlink = NULL;
+		DQ->front = DQ->rear = newNode;
+	}
+	else {
+		newNode->Rlink = NULL;
+		newNode->Llink = DQ->rear;
+		DQ->rear->Rlink = newNode;
+		DQ->rear = newNode;
+	}
+}
+
+int pop_front(DequeType* DQ) {
+	if (empty(DQ)) return -1;
+	else {
+		DequeNode* old = DQ->front;
+		int item = old->data;
+		if (DQ->front->Rlink == NULL) { DQ->front = DQ->rear = NULL; }
+		else {
+			old->Rlink->Llink = NULL;
+			DQ->front = DQ->front->Rlink;
+		}
+		free(old); --ctr; return item;
+	}
+}
+
+int pop_back(DequeType* DQ) {
+	if (empty(DQ)) return -1;
+	else {
+		DequeNode* old = DQ->rear;
+		int item = old->data;
+		if (DQ->rear->Llink == NULL) { DQ->front = DQ->rear = NULL; }
+		else {
+			old->Llink->Rlink = NULL;
+			DQ->rear = DQ->rear->Llink;
+		}
+		free(old); --ctr; return item;
+	}
+}
+
+int size() { return ctr; }
+
+int front(DequeType* DQ) {
+	if (empty(DQ)) return -1;
+	else return DQ->front->data;
+}
+
+int back(DequeType* DQ) {
+	if (empty(DQ)) return -1;
+	else return DQ->rear->data;
+}
+
+int main() {
+	DequeType* DQ = createDeque();
+	int testCase, item; scanf("%d", &testCase);
+	char command[15];
+	for (int i = 0; i < testCase; i++) {
+		scanf("%s", &command);
+		if (strcmp("push_front", command) == 0) {
+			scanf("%d", &item);
+			push_front(DQ, item);
+		}
+		else if (strcmp("push_back", command) == 0) {
+			scanf("%d", &item);
+			push_back(DQ, item);
+		}
+		else if (strcmp("pop_front", command) == 0) { printf("%d\n", pop_front(DQ)); }
+		else if (strcmp("pop_back", command) == 0) { printf("%d\n", pop_back(DQ)); }
+		else if (strcmp("size", command) == 0) { printf("%d\n", size()); }
+		else if (strcmp("empty", command) == 0) { printf("%d\n", empty(DQ)); }
+		else if (strcmp("front", command) == 0) { printf("%d\n", front(DQ)); }
+		else if (strcmp("back", command) == 0) { printf("%d\n", back(DQ)); }
+	}
+	return 0;
+}
